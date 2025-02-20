@@ -5,16 +5,27 @@ import game.actions.compact.CAction;
 import game.actions.compact.CMove;
 import game.actions.compact.CPush;
 import game.board.compact.BoardCompact;
+import game.board.compact.CTile;
+import game.board.oop.EEntity;
+import game.board.oop.EPlace;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class SokobanProblem implements HeuristicProblem<BoardCompact, CAction>{
 
     BoardCompact initialBoard;
+    boolean[][] deadSquares;
+    int[][] distances;
+
+
 
     public SokobanProblem(BoardCompact initialBoard){
         this.initialBoard = initialBoard;
+        initialBoard.initializeBoxes();
+        this.deadSquares = DeadSquareDetector.detect(initialBoard);
+        this.distances = DeadSquareDetector.computeManhattanDistanceMap(initialBoard);
     }
 
     public BoardCompact initialState(){
@@ -24,7 +35,7 @@ public class SokobanProblem implements HeuristicProblem<BoardCompact, CAction>{
 
     public List<CAction> actions(BoardCompact board) {
 
-        // HERE WE NEED TO PRUNE MOVES THAT ARE NOT ALLOWED
+
 
         List<CAction> actions = new ArrayList<CAction>(4);
         for (CMove move : CMove.getActions()) {
@@ -60,14 +71,28 @@ public class SokobanProblem implements HeuristicProblem<BoardCompact, CAction>{
         return 1.0;
     }
 
-    public double estimate(BoardCompact state){
 
-        // Here we implemetn the heuristic of the board
-        // simple one -> Manhattan distance of all boxes to nearest point summed
-        // maybe to be smart 2 sorts x and y then match (O(nlog(n)) instead of O(N^2))
+    public double estimate(BoardCompact board){
+//        // Here we implemetn the heuristic of the board
+//        // simple one -> Manhattan distance of all boxes to nearest point summed
+//        //could be better
+        Set<Coordinate> boxes = initialBoard.getBoxes();
 
-        return 0.0;
+        double totalDistance = 0.0;
+
+        for (Coordinate box : boxes) {
+            totalDistance += distances[box.x][box.y]; // uses the distance to closest box that was precomputed
+        }
+
+        return totalDistance;
     }
 
 
+
+
+    @Override
+    public boolean prune(BoardCompact state) {
+        return DeadSquareDetector.isOnDeadSquare(state, deadSquares) ||
+                DeadSquareDetector.isBoxClusterDeadlock(state);
+    }
 }

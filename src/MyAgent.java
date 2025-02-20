@@ -2,15 +2,14 @@ import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.List;
 
-import AStarUtils.AStar;
-import AStarUtils.HeuristicProblem;
-import AStarUtils.SokobanProblem;
-import AStarUtils.Solution;
+import AStarUtils.*;
 import agents.ArtificialAgent;
 import game.actions.EDirection;
 import game.actions.compact.*;
+import game.actions.slim.SAction;
 import game.board.compact.BoardCompact;
 import game.board.oop.Board;
+import game.board.slim.BoardSlim;
 
 /**
  * The simplest Tree-DFS agent.
@@ -27,7 +26,6 @@ public class MyAgent extends ArtificialAgent {
 		long searchStartMillis = System.currentTimeMillis();
 		
 		List<EDirection> result = new ArrayList<EDirection>();
-//		dfs(5, result); // the number marks how deep we will search (the longest plan we will consider)
 
 		boolean found = useAStar(result);
 		long searchTime = System.currentTimeMillis() - searchStartMillis;
@@ -58,6 +56,31 @@ public class MyAgent extends ArtificialAgent {
 		// we now need to reconstruct the solution from actions to e directions
 		List<CAction> actions = solution.actions;
 		for(CAction action : actions) {
+			result.add(action.getDirection());
+		}
+
+		return true;
+
+	}
+
+	private boolean useAStarSlim(List<EDirection> result) {
+		// idk why slim is being much slower so I will not use it for now
+
+
+		//System.out.println("Using a star");
+		//Use A star to get a solution
+		//Convert Solution to EDirections
+
+		HeuristicProblem<BoardSlim, SAction> sokoban = new SokobanProblemSlim(this.board);
+		Solution<BoardSlim, SAction> solution = AStar.search(sokoban);
+		//if no solution found
+		if (solution == null) {
+			return false;
+		}
+
+		// we now need to reconstruct the solution from actions to e directions
+		List<SAction> actions = solution.actions;
+		for(SAction action : actions) {
 			result.add(action.getDirection());
 		}
 
