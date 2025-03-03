@@ -14,20 +14,15 @@ public class AStar<S, A> {
         frontier.add(startNode);
         gScore.put(start, 0.0);
 
-        int pruned = 0;
-        int searched = 0;
-        int sameStates = 0;
 
         while (!frontier.isEmpty()) {
             Node<S, A> current = frontier.poll();
-            searched++;
 
             if (prob.isGoal(current.state)) {
                 return reconstructSolution(current, cameFrom);
             }
 
             if (prob.prune(current.state)) {
-                pruned++;
                 continue;
             }
 
@@ -37,7 +32,6 @@ public class AStar<S, A> {
 
                 // If we already found this state with a lower cost, skip it
                 if (gScore.containsKey(nextState) && newCost >= gScore.get(nextState)) {
-                    sameStates++;
                     continue;
                 }
 
@@ -48,6 +42,7 @@ public class AStar<S, A> {
                 frontier.add(nextNode);
             }
         }
+
         return null;  // No solution found
     }
 

@@ -1,5 +1,6 @@
 package game.actions.custom;
 
+import AStarUtils.Coordinate;
 import game.actions.EDirection;
 import game.actions.compact.CAction;
 import game.actions.compact.CMove;
@@ -66,6 +67,9 @@ public class CustMove extends CustAction {
     public boolean isPossible(BoardCustom board) {
         // PLAYER ON THE EDGE
         if (!onBoard(board, board.playerX, board.playerY, dir)) return false;
+
+        // TILE TO THE DIR IS NOT BOX
+        if (board.getBoxPositions().contains(new Coordinate(board.playerX+dir.dX, board.playerY+dir.dY))) return false;
 
         // TILE TO THE DIR IS FREE
         if (CTile.isFree(board.tile(board.playerX+dir.dX, board.playerY+dir.dY))) return true;

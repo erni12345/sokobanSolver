@@ -25,6 +25,7 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
     public SokobanProblem(BoardCustom initialBoard){
         this.initialBoard = initialBoard;
         initialBoard.initializeBoxes();
+        System.out.println(initialBoard.getBoxPositions());
         this.deadSquares = DeadSquareDetector.detect(initialBoard);
         this.distances = DeadSquareDetector.computeManhattanDistanceMap(initialBoard);
     }
@@ -35,6 +36,7 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 
 
     public List<CustAction> actions(BoardCustom board) {
+
 
 
 
@@ -93,18 +95,7 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 
     @Override
     public boolean prune(BoardCustom state) {
-        int X = state.playerX, Y = state.playerY;
-        //can make into single if, but this is slightly more readable
-        if (CTile.isSomeBox(state.tile(X+1, Y)) && deadSquares[X+1][Y])
-            return true;
-        else if (CTile.isSomeBox(state.tile(X, Y+1)) && deadSquares[X][Y+1])
-            return true;
-        else if (CTile.isSomeBox(state.tile(X-1, Y)) && deadSquares[X-1][Y])
-            return true;
-        else if (CTile.isSomeBox(state.tile(X, Y-1)) && deadSquares[X][Y-1])
-            return true;
-        return false;
-//        return DeadSquareDetector.isOnDeadSquare(state, deadSquares) ||
-//                DeadSquareDetector.isBoxClusterDeadlock(state);
+        return DeadSquareDetector.isOnDeadSquare(state, deadSquares) ||
+                DeadSquareDetector.isBoxClusterDeadlock(state);
     }
 }

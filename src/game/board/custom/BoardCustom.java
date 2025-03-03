@@ -25,7 +25,7 @@ public class BoardCustom implements Cloneable{
     public int boxCount;
     public int boxInPlaceCount;
 
-    private final Set<Coordinate> boxPositions = new HashSet<>();
+    private Set<Coordinate> boxPositions = new HashSet<>();
 
     private BoardCustom(){
     }
@@ -39,26 +39,29 @@ public class BoardCustom implements Cloneable{
         }
     }
 
+    public Set<Coordinate> getBoxPositions() {
+        return boxPositions;
+    }
+
     @Override
     public BoardCustom clone() {
         BoardCustom result = new BoardCustom();
-        result.tiles = new int[width()][height()];
-        for (int x = 0; x < width(); ++x) {
-            for (int y = 0; y < height(); ++y) {
-                result.tiles[x][y] = tiles[x][y];
-            }
-        }
+        result.tiles = this.tiles;
         result.playerX = playerX;
         result.playerY = playerY;
         result.boxCount = boxCount;
         result.boxInPlaceCount = boxInPlaceCount;
+        result.boxPositions = this.boxPositions;
         return result;
     }
 
     @Override
     public int hashCode() {
-        if (hash == null) {
-            hash = Arrays.deepHashCode(tiles) ^ (31 * playerX + 97 * playerY);
+        int hash = 7;
+        hash = 31 * hash + playerX;
+        hash = 31 * hash + playerY;
+        for (Coordinate c : boxPositions) {
+            hash = 31 * hash + (c != null ? c.hashCode() : 0);
         }
         return hash;
     }
@@ -90,8 +93,7 @@ public class BoardCustom implements Cloneable{
 
         return playerX == other.playerX &&
                 playerY == other.playerY &&
-                boxPositions.equals(other.boxPositions) && // Use Set equality
-                Arrays.deepEquals(this.tiles, other.tiles);
+                boxPositions.equals(other.boxPositions);
     }
 
     public boolean equalsState(BoardCustom other) {
@@ -118,13 +120,6 @@ public class BoardCustom implements Cloneable{
     }
 
     public void movePlayer(int sourceTileX, int sourceTileY, int targetTileX, int targetTileY) {
-        int entity = tiles[sourceTileX][sourceTileY] & EEntity.SOME_ENTITY_FLAG;
-
-        tiles[targetTileX][targetTileY] &= EEntity.NULLIFY_ENTITY_FLAG;
-        tiles[targetTileX][targetTileY] |= entity;
-
-        tiles[sourceTileX][sourceTileY] &= EEntity.NULLIFY_ENTITY_FLAG;
-        tiles[sourceTileX][sourceTileY] |= EEntity.NONE.getFlag();
 
         playerX = targetTileX;
         playerY = targetTileY;
@@ -134,20 +129,22 @@ public class BoardCustom implements Cloneable{
 
 
     public void moveBox(int sourceTileX, int sourceTileY, int targetTileX, int targetTileY) {
-        int entity = tiles[sourceTileX][sourceTileY] & EEntity.SOME_ENTITY_FLAG;
-        int boxNum = CTile.getBoxNum(tiles[sourceTileX][sourceTileY]);
 
-        if (CTile.forBox(boxNum, tiles[targetTileX][targetTileY]) || CTile.forAnyBox(tiles[targetTileX][targetTileY])) {
+        if (CTile.forAnyBox(tiles[targetTileX][targetTileY])){
             ++boxInPlaceCount;
         }
-        tiles[targetTileX][targetTileY] &= EEntity.NULLIFY_ENTITY_FLAG;
-        tiles[targetTileX][targetTileY] |= entity;
 
-        if (CTile.forBox(boxNum, tiles[sourceTileX][sourceTileY]) || CTile.forAnyBox(tiles[sourceTileX][sourceTileY])) {
+        if (CTile.forAnyBox(tiles[sourceTileX][sourceTileY])){
             --boxInPlaceCount;
         }
-        tiles[sourceTileX][sourceTileY] &= EEntity.NULLIFY_ENTITY_FLAG;
-        tiles[sourceTileX][sourceTileY] |= EEntity.NONE.getFlag();
+
+        boolean removed = boxPositions.remove(new Coordinate(sourceTileX, sourceTileY));
+        if (removed) {
+            boxPositions.add(new Coordinate(targetTileX, targetTileY));
+        } else {
+            System.out.println("ISSUE WITH MOVE BOX");
+        }
+        hash = null;
 
         hash = null;
     }

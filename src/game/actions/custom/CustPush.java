@@ -1,5 +1,6 @@
 package game.actions.custom;
 
+import AStarUtils.Coordinate;
 import game.actions.EDirection;
 import game.actions.compact.CAction;
 import game.actions.compact.CPush;
@@ -78,13 +79,16 @@ public class CustPush extends CustAction {
         if (!CustAction.isOnBoard(board, playerX, playerY, pushDirection)) return false;
 
         // TILE TO THE DIR IS NOT BOX
-        if (!CTile.isSomeBox(board.tile(playerX+pushDirection.dX, playerY+pushDirection.dY))) return false;
+        if (!board.getBoxPositions().contains(new Coordinate(playerX+pushDirection.dX, playerY+pushDirection.dY))) return false;
 
         // BOX IS ON THE EDGE IN THE GIVEN DIR
         if (!CustAction.isOnBoard(board, playerX+pushDirection.dX, playerY+pushDirection.dY, pushDirection)) return false;
 
-        // TILE TO THE DIR OF THE BOX IS NOT FREE
+        // TILE TO THE DIR OF THE BOX IS NOT FREE (DOES NOT CHECK IF IT IS BOX)
         if (!CTile.isFree(board.tile(playerX+pushDirection.dX+pushDirection.dX, playerY+pushDirection.dY+pushDirection.dY))) return false;
+
+        // TILE TO THE DIR OF THE BOX IS A BOX
+        if (board.getBoxPositions().contains(new Coordinate(playerX+pushDirection.dX+pushDirection.dX, playerY+pushDirection.dY+pushDirection.dY))) return false;
 
         // YEP, WE CAN PUSH
         return true;
