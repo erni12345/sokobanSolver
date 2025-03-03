@@ -1,5 +1,8 @@
 package AStarUtils;
 
+import game.actions.compact.CAction;
+import game.actions.oop.EActionType;
+
 import java.util.*;
 
 
@@ -29,7 +32,9 @@ public class AStar<S, A> {
                 return reconstructSolution(current, cameFrom);
             }
 
-            if (prob.prune(current.state)) {
+            // very very simple optimization - keep track of whether the previous action moved a box or not. If not, skip the dead square check.
+//            if (prob.prune(current.state)) {
+            if (prob.prune2(current.state, current.action)) {
                 pruned++;
                 continue;
             }

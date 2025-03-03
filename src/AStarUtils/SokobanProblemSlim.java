@@ -4,6 +4,7 @@ import game.actions.slim.SAction;
 import game.actions.slim.SMove;
 import game.actions.slim.SPush;
 import game.board.compact.BoardCompact;
+import game.board.ext.BoardCompactExtended;
 import game.board.slim.BoardSlim;
 import game.board.slim.STile;
 
@@ -18,7 +19,7 @@ public class SokobanProblemSlim implements HeuristicProblem<BoardSlim, SAction>{
     boolean[][] deadSquares;
     int[][] distances;
 
-    public SokobanProblemSlim(BoardCompact board){
+    public SokobanProblemSlim(BoardCompactExtended board){
         this.initialBoard = board.makeBoardSlim();
         initialBoard.initializeBoxesAndPlaces();
         this.deadSquares = DeadSquareDetector.detect(board);

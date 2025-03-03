@@ -1,3 +1,4 @@
+import static game.board.ext.BoardCompactExtended.fromBoardCompact;
 import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +9,7 @@ import game.actions.EDirection;
 import game.actions.compact.*;
 import game.actions.slim.SAction;
 import game.board.compact.BoardCompact;
-import game.board.oop.Board;
+import game.board.ext.BoardCompactExtended;
 import game.board.slim.BoardSlim;
 
 /**
@@ -16,12 +17,12 @@ import game.board.slim.BoardSlim;
  * @author Jimmy
  */
 public class MyAgent extends ArtificialAgent {
-	protected BoardCompact board;
+	protected BoardCompactExtended board;
 	protected int searchedNodes;
 	
 	@Override
 	protected List<EDirection> think(BoardCompact board) {
-		this.board = board;
+		this.board = fromBoardCompact(board);
 		searchedNodes = 0;
 		long searchStartMillis = System.currentTimeMillis();
 		
@@ -45,8 +46,8 @@ public class MyAgent extends ArtificialAgent {
 		//Use A star to get a solution
 		//Convert Solution to EDirections
 
-		HeuristicProblem<BoardCompact, CAction> sokoban = new SokobanProblem(this.board);
-		Solution<BoardCompact, CAction> solution = AStar.search(sokoban);
+		HeuristicProblem<BoardCompactExtended, CAction> sokoban = new SokobanProblem(this.board);
+		Solution<BoardCompactExtended, CAction> solution = AStar.search(sokoban);
 
 		//if no solution found
 		if (solution == null) {
