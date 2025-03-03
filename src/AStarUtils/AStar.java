@@ -23,9 +23,6 @@ public class AStar<S, A> {
             searched++;
 
             if (prob.isGoal(current.state)) {
-                System.out.println("total pruned: " + pruned);
-                System.out.println("total searched: " + searched);
-                System.out.println("total same: " + sameStates);
                 return reconstructSolution(current, cameFrom);
             }
 

@@ -1,10 +1,10 @@
 package AStarUtils;
 
 import game.actions.EDirection;
-import game.actions.compact.CAction;
 import game.actions.compact.CPush;
-import game.board.compact.BoardCompact;
+import game.actions.custom.CustAction;
 import game.board.compact.CTile;
+import game.board.custom.BoardCustom;
 import game.board.oop.EEntity;
 import game.board.oop.EPlace;
 import game.board.oop.ESpace;
@@ -19,11 +19,11 @@ import static game.board.oop.EPlace.SOME_BOX_PLACE_FLAG;
 
 public class DeadSquareDetector {
 
-    BoardCompact board;
+    BoardCustom board;
     static List<Coordinate> goalCoordinates;
     static Integer[][] moves = new Integer[4][2];
 
-    public DeadSquareDetector(BoardCompact board) {
+    public DeadSquareDetector(BoardCustom board) {
         this.board = board;
         goalCoordinates = getGoalCoordinates(board);
 
@@ -43,7 +43,7 @@ public class DeadSquareDetector {
 
 
     // Returns the x y coordinated of all places
-    public static List<Coordinate> getGoalCoordinates(BoardCompact board) {
+    public static List<Coordinate> getGoalCoordinates(BoardCustom board) {
         List<Coordinate> goalCoordinates = new ArrayList<>();
 
         for (int x = 0; x < board.width(); x++) {
@@ -57,7 +57,7 @@ public class DeadSquareDetector {
         return goalCoordinates;
     }
 
-    public static boolean isPushPossible(BoardCompact board, int playerX, int playerY, EDirection pushDirection) {
+    public static boolean isPushPossible(BoardCustom board, int playerX, int playerY, EDirection pushDirection) {
 
         //Player out of map
         if (playerX < 0 || playerX >= board.width() || playerY < 0 || playerY >= board.height()) {
@@ -66,12 +66,12 @@ public class DeadSquareDetector {
 
 
         // PLAYER ON THE EDGE
-        if (!CAction.isOnBoard(board, playerX, playerY, pushDirection)) {
+        if (!CustAction.isOnBoard(board, playerX, playerY, pushDirection)) {
             return false;
         }
 
         // BOX IS ON THE EDGE IN THE GIVEN DIR
-        if (!CAction.isOnBoard(board, playerX+pushDirection.dX, playerY+pushDirection.dY, pushDirection)) {
+        if (!CustAction.isOnBoard(board, playerX+pushDirection.dX, playerY+pushDirection.dY, pushDirection)) {
             return false;
         }
 
@@ -84,7 +84,7 @@ public class DeadSquareDetector {
         return true;
     }
 
-    public static boolean isPossible(BoardCompact board, int x, int y, int destX, int destY) {
+    public static boolean isPossible(BoardCustom board, int x, int y, int destX, int destY) {
 
         // player
         int playerX = 2 * x + destX;
@@ -105,7 +105,7 @@ public class DeadSquareDetector {
 
     }
 
-    public static boolean[][] detect(BoardCompact board) {
+    public static boolean[][] detect(BoardCustom board) {
 
         goalCoordinates = getGoalCoordinates(board);
 
@@ -153,7 +153,7 @@ public class DeadSquareDetector {
 
 
 
-    public static boolean isOnDeadSquare(BoardCompact board, boolean[][] isDeadSquare){
+    public static boolean isOnDeadSquare(BoardCustom board, boolean[][] isDeadSquare){
 
         //TODO:
         // a way of making this much faster is on move of box have a flag if it gets moved int a dead square
@@ -190,7 +190,7 @@ public class DeadSquareDetector {
     }
 
 
-    public static int[][] computeManhattanDistanceMap(BoardCompact board) {
+    public static int[][] computeManhattanDistanceMap(BoardCustom board) {
         int width = board.width();
         int height = board.height();
         int[][] distanceMap = new int[width][height];
@@ -219,7 +219,7 @@ public class DeadSquareDetector {
         return distanceMap;
     }
 
-    private static boolean canMoveBox(BoardCompact board, int bX, int bY) {
+    private static boolean canMoveBox(BoardCustom board, int bX, int bY) {
         for (EDirection dir : EDirection.values()) {
             int playerX = bX - dir.dX;
             int playerY = bY - dir.dY;
@@ -233,7 +233,7 @@ public class DeadSquareDetector {
     }
 
 
-    public static boolean isBoxTrapped(BoardCompact board, int boxX, int boxY) {
+    public static boolean isBoxTrapped(BoardCustom board, int boxX, int boxY) {
         // Check if a box is stuck against another box
         for (EDirection dir : EDirection.values()) {
             int nx = boxX + dir.dX;
@@ -249,14 +249,14 @@ public class DeadSquareDetector {
         return false;
     }
 
-    private static boolean isWithinBounds(BoardCompact board, int x, int y) {
+    private static boolean isWithinBounds(BoardCustom board, int x, int y) {
         return x >= 0 && y >= 0 && x < board.width() && y < board.height();
     }
 
 
 
 
-    private static boolean isCorridorDeadlock(BoardCompact board, int boxX, int boxY, EDirection pushDir) {
+    private static boolean isCorridorDeadlock(BoardCustom board, int boxX, int boxY, EDirection pushDir) {
 
         boolean isHorizontalCorridor = CTile.isWall(board.tile(boxX, boxY - 1)) && CTile.isWall(board.tile(boxX, boxY + 1));
         boolean isVerticalCorridor = CTile.isWall(board.tile(boxX - 1, boxY)) && CTile.isWall(board.tile(boxX + 1, boxY));
@@ -287,7 +287,7 @@ public class DeadSquareDetector {
 
 
 
-    public static boolean isBoxClusterDeadlock(BoardCompact state) {
+    public static boolean isBoxClusterDeadlock(BoardCustom state) {
         for (Coordinate box : state.getBoxes()) {
             int stuckBoxes = 0;
 
@@ -326,7 +326,7 @@ public class DeadSquareDetector {
         return inverted;
     }
 
-    public static void printBoard(BoardCompact bc, boolean[][] dead) {
+    public static void printBoard(BoardCustom bc, boolean[][] dead) {
         for (int y = 0; y < bc.height(); ++y) {
             for (int x = 0; x < bc.width(); ++x) {
                 System.out.print(CTile.isWall(bc.tile(x, y)) ? '#' : (dead[x][y] ? 'X' : '_'));
@@ -343,4 +343,5 @@ public class DeadSquareDetector {
             System.out.println();
         }
     }
+
 }

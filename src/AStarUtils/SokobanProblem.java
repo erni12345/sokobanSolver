@@ -1,49 +1,50 @@
 package AStarUtils;
 
-import game.actions.EDirection;
 import game.actions.compact.CAction;
 import game.actions.compact.CMove;
 import game.actions.compact.CPush;
-import game.board.compact.BoardCompact;
+import game.actions.custom.CustAction;
+import game.actions.custom.CustMove;
+import game.actions.custom.CustPush;
 import game.board.compact.CTile;
-import game.board.oop.EEntity;
-import game.board.oop.EPlace;
+import game.board.custom.BoardCustom;
+import game.board.oop.Board;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class SokobanProblem implements HeuristicProblem<BoardCompact, CAction>{
+public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>{
 
-    BoardCompact initialBoard;
+    BoardCustom initialBoard;
     boolean[][] deadSquares;
     int[][] distances;
 
 
 
-    public SokobanProblem(BoardCompact initialBoard){
+    public SokobanProblem(BoardCustom initialBoard){
         this.initialBoard = initialBoard;
         initialBoard.initializeBoxes();
         this.deadSquares = DeadSquareDetector.detect(initialBoard);
         this.distances = DeadSquareDetector.computeManhattanDistanceMap(initialBoard);
     }
 
-    public BoardCompact initialState(){
+    public BoardCustom initialState(){
         return initialBoard;
     }
 
 
-    public List<CAction> actions(BoardCompact board) {
+    public List<CustAction> actions(BoardCustom board) {
 
 
 
-        List<CAction> actions = new ArrayList<CAction>(4);
-        for (CMove move : CMove.getActions()) {
+        List<CustAction> actions = new ArrayList<CustAction>(4);
+        for (CustMove move : CustMove.getActions()) {
             if (move.isPossible(board)) {
                 actions.add(move);
             }
         }
-        for (CPush push : CPush.getActions()) {
+        for (CustPush push : CustPush.getActions()) {
             if (push.isPossible(board)) {
                 actions.add(push);
             }
@@ -52,27 +53,27 @@ public class SokobanProblem implements HeuristicProblem<BoardCompact, CAction>{
     }
 
 
-    public BoardCompact result(BoardCompact board, CAction action){
-        BoardCompact boardCopy = board.clone();
+    public BoardCustom result(BoardCustom board, CustAction action){
+        BoardCustom boardCopy = board.clone();
         action.perform(boardCopy);
         return boardCopy;
     }
 
 
-    public boolean isGoal(BoardCompact board){
+    public boolean isGoal(BoardCustom board){
         return board.isVictory();
     }
 
 
 
-    public double cost(BoardCompact state, CAction action){
+    public double cost(BoardCustom state, CustAction action){
 
         // We want to minimise the amount of moves, every move has the same cost of 1.
-        return 1.0;
+        return action.getSteps();
     }
 
 
-    public double estimate(BoardCompact board){
+    public double estimate(BoardCustom board){
 //        // Here we implemetn the heuristic of the board
 //        // simple one -> Manhattan distance of all boxes to nearest point summed
 //        //could be better
@@ -91,8 +92,19 @@ public class SokobanProblem implements HeuristicProblem<BoardCompact, CAction>{
 
 
     @Override
-    public boolean prune(BoardCompact state) {
-        return DeadSquareDetector.isOnDeadSquare(state, deadSquares) ||
-                DeadSquareDetector.isBoxClusterDeadlock(state);
+    public boolean prune(BoardCustom state) {
+        int X = state.playerX, Y = state.playerY;
+        //can make into single if, but this is slightly more readable
+        if (CTile.isSomeBox(state.tile(X+1, Y)) && deadSquares[X+1][Y])
+            return true;
+        else if (CTile.isSomeBox(state.tile(X, Y+1)) && deadSquares[X][Y+1])
+            return true;
+        else if (CTile.isSomeBox(state.tile(X-1, Y)) && deadSquares[X-1][Y])
+            return true;
+        else if (CTile.isSomeBox(state.tile(X, Y-1)) && deadSquares[X][Y-1])
+            return true;
+        return false;
+//        return DeadSquareDetector.isOnDeadSquare(state, deadSquares) ||
+//                DeadSquareDetector.isBoxClusterDeadlock(state);
     }
 }

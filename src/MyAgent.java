@@ -6,8 +6,10 @@ import AStarUtils.*;
 import agents.ArtificialAgent;
 import game.actions.EDirection;
 import game.actions.compact.*;
+import game.actions.custom.CustAction;
 import game.actions.slim.SAction;
 import game.board.compact.BoardCompact;
+import game.board.custom.BoardCustom;
 import game.board.oop.Board;
 import game.board.slim.BoardSlim;
 
@@ -16,12 +18,12 @@ import game.board.slim.BoardSlim;
  * @author Jimmy
  */
 public class MyAgent extends ArtificialAgent {
-	protected BoardCompact board;
+	protected BoardCustom board;
 	protected int searchedNodes;
 	
 	@Override
 	protected List<EDirection> think(BoardCompact board) {
-		this.board = board;
+		this.board = BoardCustom.fromBoardCompact(board);
 		searchedNodes = 0;
 		long searchStartMillis = System.currentTimeMillis();
 		
@@ -45,8 +47,8 @@ public class MyAgent extends ArtificialAgent {
 		//Use A star to get a solution
 		//Convert Solution to EDirections
 
-		HeuristicProblem<BoardCompact, CAction> sokoban = new SokobanProblem(this.board);
-		Solution<BoardCompact, CAction> solution = AStar.search(sokoban);
+		HeuristicProblem<BoardCustom, CustAction> sokoban = new SokobanProblem(this.board);
+		Solution<BoardCustom, CustAction> solution = AStar.search(sokoban);
 
 		//if no solution found
 		if (solution == null) {
@@ -54,33 +56,8 @@ public class MyAgent extends ArtificialAgent {
 		}
 
 		// we now need to reconstruct the solution from actions to e directions
-		List<CAction> actions = solution.actions;
-		for(CAction action : actions) {
-			result.add(action.getDirection());
-		}
-
-		return true;
-
-	}
-
-	private boolean useAStarSlim(List<EDirection> result) {
-		// idk why slim is being much slower so I will not use it for now
-
-
-		//System.out.println("Using a star");
-		//Use A star to get a solution
-		//Convert Solution to EDirections
-
-		HeuristicProblem<BoardSlim, SAction> sokoban = new SokobanProblemSlim(this.board);
-		Solution<BoardSlim, SAction> solution = AStar.search(sokoban);
-		//if no solution found
-		if (solution == null) {
-			return false;
-		}
-
-		// we now need to reconstruct the solution from actions to e directions
-		List<SAction> actions = solution.actions;
-		for(SAction action : actions) {
+		List<CustAction> actions = solution.actions;
+		for(CustAction action : actions) {
 			result.add(action.getDirection());
 		}
 

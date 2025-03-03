@@ -2,6 +2,7 @@ import java.io.File;
 
 import AStarUtils.DeadSquareDetector;
 import game.board.compact.*;
+import game.board.custom.BoardCustom;
 import game.board.oop.*;
 
 public class DeadSquareTest {
@@ -39,7 +40,7 @@ public class DeadSquareTest {
             printLevelWithTargets(board);
             System.out.println();
 
-            BoardCompact bc = board.makeBoardCompact();
+            BoardCustom bc = BoardCustom.fromBoardCompact(board.makeBoardCompact());
 
             boolean[][] dead = DeadSquareDetector.detect(bc);
             
