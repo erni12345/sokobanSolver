@@ -23,7 +23,13 @@ public class MyAgent extends ArtificialAgent {
 	
 	@Override
 	protected List<EDirection> think(BoardCompact board) {
+
+
+//		out.println(board.getBoardString());
+
 		this.board = BoardCustom.fromBoardCompact(board);
+//		out.println("_______");
+//		out.println(this.board.getBoardString());
 		searchedNodes = 0;
 		long searchStartMillis = System.currentTimeMillis();
 		

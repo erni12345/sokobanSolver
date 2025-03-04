@@ -24,8 +24,7 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 
     public SokobanProblem(BoardCustom initialBoard){
         this.initialBoard = initialBoard;
-        initialBoard.initializeBoxes();
-        System.out.println(initialBoard.getBoxPositions());
+//        System.out.println(initialBoard.getBoxPositions());
         this.deadSquares = DeadSquareDetector.detect(initialBoard);
         this.distances = DeadSquareDetector.computeManhattanDistanceMap(initialBoard);
     }
@@ -42,6 +41,9 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 
         List<CustAction> actions = new ArrayList<CustAction>(4);
         for (CustMove move : CustMove.getActions()) {
+//            System.out.println("______");
+//            System.out.println(move.toString());
+//            System.out.println(board.getBoardString());
             if (move.isPossible(board)) {
                 actions.add(move);
             }
@@ -51,6 +53,8 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
                 actions.add(push);
             }
         }
+
+//        System.out.println(actions.toString());
         return actions;
     }
 

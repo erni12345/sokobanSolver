@@ -5,6 +5,7 @@ import game.actions.compact.CPush;
 import game.actions.custom.CustAction;
 import game.board.compact.CTile;
 import game.board.custom.BoardCustom;
+import game.board.custom.CustomTile;
 import game.board.oop.EEntity;
 import game.board.oop.EPlace;
 import game.board.oop.ESpace;
@@ -48,7 +49,7 @@ public class DeadSquareDetector {
 
         for (int x = 0; x < board.width(); x++) {
             for (int y = 0; y < board.height(); y++) {
-                if (CTile.forSomeBox(board.tile(x, y))) {
+                if (CustomTile.forAnyBox(board.tile(x, y))) {
                     goalCoordinates.add(new Coordinate(x, y));
                 }
             }
@@ -75,10 +76,10 @@ public class DeadSquareDetector {
             return false;
         }
 
-        if (CTile.isWall(board.tile(playerX, playerY))) return false;
+        if (CustomTile.isWall(board.tile(playerX, playerY))) return false;
 
         // box is a wall
-        if(CTile.isWall(board.tile(playerX+pushDirection.dX, playerY + pushDirection.dY))) return false;
+        if(CustomTile.isWall(board.tile(playerX+pushDirection.dX, playerY + pushDirection.dY))) return false;
 
         // YEP, WE CAN PUSH
         return true;
@@ -159,30 +160,9 @@ public class DeadSquareDetector {
         // a way of making this much faster is on move of box have a flag if it gets moved int a dead square
         // make our own board representation would be best here
 
-        for (int x = 0; x < board.width(); x++) {
-            for (int y = 0; y < board.height(); y++) {
-                if(isDeadSquare[x][y] && CTile.isSomeBox(board.tile(x, y))) {
-                    // box is at a dead square
-                    return true;
-                }
-            }
-        }
-
-        return false;
-    }
-
-    public static boolean isOnDeadSquareSlim(BoardSlim board, boolean[][] isDeadSquare){
-
-        //TODO:
-        // a way of making this much faster is on move of box have a flag if it gets moved int a dead square
-        // make our own board representation would be best here
-
-        for (int x = 0; x < board.width(); x++) {
-            for (int y = 0; y < board.height(); y++) {
-                if(isDeadSquare[x][y] && STile.isBox(board.tile(x, y))) {
-                    // box is at a dead square
-                    return true;
-                }
+        for (Coordinate box : board.getBoxPositions()){
+            if (isDeadSquare[box.x][box.y]) {
+                return true;
             }
         }
 
@@ -203,7 +183,7 @@ public class DeadSquareDetector {
 
         for (int x = 0; x < width; x++) {
             for (int y = 0; y < height; y++) {
-                if (CTile.isWall(board.tile(x, y))) {
+                if (CustomTile.isWall(board.tile(x, y))) {
                     continue;
                 }
 
@@ -258,30 +238,31 @@ public class DeadSquareDetector {
 
     private static boolean isCorridorDeadlock(BoardCustom board, int boxX, int boxY, EDirection pushDir) {
 
-        boolean isHorizontalCorridor = CTile.isWall(board.tile(boxX, boxY - 1)) && CTile.isWall(board.tile(boxX, boxY + 1));
-        boolean isVerticalCorridor = CTile.isWall(board.tile(boxX - 1, boxY)) && CTile.isWall(board.tile(boxX + 1, boxY));
-
-        if (!isHorizontalCorridor && !isVerticalCorridor) return false;
-
-        if (canMoveBox(board, boxX, boxY)) return false;
-
-        int nx = boxX + pushDir.dX;
-        int ny = boxY + pushDir.dY;
-
-        while (isWithinBounds(board, nx, ny) && !CTile.isWall(board.tile(nx, ny))) {
-            if (CTile.forAnyBox(board.tile(nx, ny))) {
-                return false;
-            }
-
-            if (CTile.isSomeBox(board.tile(nx, ny)) && canMoveBox(board, nx, ny)) {
-                return false;
-            }
-
-            nx += pushDir.dX;
-            ny += pushDir.dY;
-        }
-
-        return true;
+//        boolean isHorizontalCorridor = CustomTile.isWall(board.tile(boxX, boxY - 1)) && CustomTile.isWall(board.tile(boxX, boxY + 1));
+//        boolean isVerticalCorridor = CustomTile.isWall(board.tile(boxX - 1, boxY)) && CustomTile.isWall(board.tile(boxX + 1, boxY));
+//
+//        if (!isHorizontalCorridor && !isVerticalCorridor) return false;
+//
+//        if (canMoveBox(board, boxX, boxY)) return false;
+//
+//        int nx = boxX + pushDir.dX;
+//        int ny = boxY + pushDir.dY;
+//
+//        while (isWithinBounds(board, nx, ny) && !CustomTile.isWall(board.tile(nx, ny))) {
+//            if (CustomTile.forAnyBox(board.tile(nx, ny))) {
+//                return false;
+//            }
+//
+//            if (CustomTile.isSomeBox(board.tile(nx, ny)) && canMoveBox(board, nx, ny)) {
+//                return false;
+//            }
+//
+//            nx += pushDir.dX;
+//            ny += pushDir.dY;
+//        }
+//
+//        return true;
+        return false;
     }
 
 
@@ -329,16 +310,7 @@ public class DeadSquareDetector {
     public static void printBoard(BoardCustom bc, boolean[][] dead) {
         for (int y = 0; y < bc.height(); ++y) {
             for (int x = 0; x < bc.width(); ++x) {
-                System.out.print(CTile.isWall(bc.tile(x, y)) ? '#' : (dead[x][y] ? 'X' : '_'));
-            }
-            System.out.println();
-        }
-    }
-
-    public static void printBoard(BoardSlim bc, boolean[][] dead) {
-        for (int y = 0; y < bc.height(); ++y) {
-            for (int x = 0; x < bc.width(); ++x) {
-                System.out.print(STile.isWall(bc.tile(x, y)) ? '#' : (dead[x][y] ? 'X' : '_'));
+                System.out.print(CustomTile.isWall(bc.tile(x, y)) ? '#' : (dead[x][y] ? 'X' : '_'));
             }
             System.out.println();
         }

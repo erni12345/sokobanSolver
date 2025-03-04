@@ -3,8 +3,11 @@ package game.board.custom;
 import AStarUtils.Coordinate;
 import game.board.compact.BoardCompact;
 import game.board.compact.CTile;
+import game.board.compact.CustomEntity;
 import game.board.minimal.StateMinimal;
 import game.board.oop.EEntity;
+import game.board.oop.EPlace;
+import game.board.oop.ESpace;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -17,7 +20,7 @@ public class BoardCustom implements Cloneable{
     /**
      * Compact representation of tiles.
      */
-    public int[][] tiles;
+    public CustomEntity[][] tiles;
 
     public int playerX;
     public int playerY;
@@ -31,10 +34,10 @@ public class BoardCustom implements Cloneable{
     }
 
     public BoardCustom(int width, int height) {
-        tiles = new int[width][height];
+        tiles = new CustomEntity[width][height];
         for (int x = 0; x < width; ++x) {
             for (int y = 0; y < height; ++y) {
-                tiles[x][y] = 0;
+                tiles[x][y] = CustomEntity.EMPTY;
             }
         }
     }
@@ -51,12 +54,18 @@ public class BoardCustom implements Cloneable{
         result.playerY = playerY;
         result.boxCount = boxCount;
         result.boxInPlaceCount = boxInPlaceCount;
-        result.boxPositions = this.boxPositions;
+        Set<Coordinate> clonedSet = new HashSet<>();
+        for (Coordinate c : boxPositions) {
+            clonedSet.add(c.clone());
+        }
+        result.boxPositions = clonedSet;
         return result;
     }
 
     @Override
     public int hashCode() {
+
+        if (hash != null) return hash;
         int hash = 7;
         hash = 31 * hash + playerX;
         hash = 31 * hash + playerY;
@@ -64,20 +73,6 @@ public class BoardCustom implements Cloneable{
             hash = 31 * hash + (c != null ? c.hashCode() : 0);
         }
         return hash;
-    }
-
-    public void initializeBoxes() {
-        boxPositions.clear();
-
-        for (int x = 0; x < width(); x++) {
-            for (int y = 0; y < height(); y++) {
-                int tile = tiles[x][y];
-
-                if (CTile.isSomeBox(tile)) {
-                    boxPositions.add(new Coordinate(x, y));
-                }
-            }
-        }
     }
 
     public Set<Coordinate> getBoxes() {
@@ -115,7 +110,7 @@ public class BoardCustom implements Cloneable{
         return tiles[0].length;
     }
 
-    public int tile(int x, int y) {
+    public CustomEntity tile(int x, int y) {
         return tiles[x][y];
     }
 
@@ -130,11 +125,14 @@ public class BoardCustom implements Cloneable{
 
     public void moveBox(int sourceTileX, int sourceTileY, int targetTileX, int targetTileY) {
 
-        if (CTile.forAnyBox(tiles[targetTileX][targetTileY])){
+//        System.out.println(tiles[targetTileX][targetTileY] + " type +++++++++++++" );
+//        System.out.println("KSNFPSDNFSDN:JKDSNFLKDJSNFLDJSNFLDSJKNFLKJSDNFLDSKJNFLJNF");
+
+        if (CustomTile.forAnyBox(tiles[targetTileX][targetTileY])){
             ++boxInPlaceCount;
         }
 
-        if (CTile.forAnyBox(tiles[sourceTileX][sourceTileY])){
+        if (CustomTile.forAnyBox(tiles[sourceTileX][sourceTileY])){
             --boxInPlaceCount;
         }
 
@@ -146,42 +144,75 @@ public class BoardCustom implements Cloneable{
         }
         hash = null;
 
-        hash = null;
     }
 
 
     public boolean isVictory() {
+//        System.out.println(boxCount + " " + boxInPlaceCount);
         return boxCount == boxInPlaceCount;
-    }
-
-    public void setState(StateMinimal state) {
-        playerX = state.getX(state.positions[0]);
-        playerY = state.getY(state.positions[0]);
-        boxInPlaceCount = 0;
-
-        tiles[playerX][playerY] = (tiles[playerX][playerY] & EEntity.NULLIFY_ENTITY_FLAG) | EEntity.PLAYER.getFlag();
-
-        for (int i = 1; i < state.positions.length; ++i) {
-            int x = state.getX(state.positions[i]);
-            int y = state.getY(state.positions[i]);
-            tiles[x][y] = (tiles[x][y] & EEntity.NULLIFY_ENTITY_FLAG) | EEntity.BOX_1.getFlag();
-            if (CTile.forSomeBox(tiles[x][y])) ++boxInPlaceCount;
-        }
     }
 
 
     public static BoardCustom fromBoardCompact(BoardCompact board){
         BoardCustom result = new BoardCustom();
-        result.tiles = board.tiles;
+        result.tiles = new CustomEntity[board.tiles.length][board.tiles[0].length];
+        HashSet<Coordinate> boxPositions = new HashSet<>();
+        for (int x = 0; x < board.tiles.length; ++x) {
+            for (int y = 0; y < board.tiles[0].length; ++y) {
+                if (CTile.isSomeBox(board.tiles[x][y])) {
+                    result.tiles[x][y] = CustomEntity.EMPTY;
+                    boxPositions.add(new Coordinate(x, y));
+                }
+                if (CTile.isPlayer(board.tiles[x][y])) {
+                    result.tiles[x][y] = CustomEntity.EMPTY;
+                }
+
+                if (CTile.isWall(board.tiles[x][y])) {
+                    result.tiles[x][y] = CustomEntity.WALL;
+                } else if (CTile.forBox(1, board.tiles[x][y])){
+                    result.tiles[x][y] = CustomEntity.DESTINATION;
+                } else {
+                    result.tiles[x][y] = CustomEntity.EMPTY;
+                }
+            }
+        }
         result.playerX = board.playerX;
         result.playerY = board.playerY;
         result.boxCount = board.boxCount;
         result.boxInPlaceCount = board.boxInPlaceCount;
-
-        result.initializeBoxes();
-
+        result.boxPositions = boxPositions;
         return result;
     }
+
+    public String getBoardString() {
+        StringBuffer sb = new StringBuffer();
+
+        for (int y = 0; y < height(); ++y) {
+            if (y != 0) sb.append("\n");
+            for (int x = 0; x < width(); ++x) {
+
+                if (x == playerX && y == playerY) {
+                    sb.append("@");
+                } else
+                if (boxPositions.contains(new Coordinate(x, y))) {
+                    sb.append("$");
+                } else
+                if (CustomTile.isWall(tiles[x][y])){
+                    sb.append("#");
+                } else if (CustomTile.forAnyBox(tiles[x][y])){
+                    sb.append(".");
+                } else if (CustomTile.isFree(tiles[x][y])){
+                    sb.append(" ");
+                }
+                else {
+                    sb.append("?");
+                }
+            }
+        }
+
+        return sb.toString();
+    }
+
 
 
 

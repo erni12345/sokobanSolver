@@ -8,6 +8,7 @@ import game.actions.oop.EActionType;
 import game.board.compact.BoardCompact;
 import game.board.compact.CTile;
 import game.board.custom.BoardCustom;
+import game.board.custom.CustomTile;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -76,57 +77,38 @@ public class CustPush extends CustAction {
      */
     public static boolean isPushPossible(BoardCustom board, int playerX, int playerY, EDirection pushDirection) {
         // PLAYER ON THE EDGE
+
         if (!CustAction.isOnBoard(board, playerX, playerY, pushDirection)) return false;
+
+//        System.out.println(board.getBoxPositions());
+//        System.out.println(new Coordinate(playerX+pushDirection.dX, playerY+pushDirection.dY));
 
         // TILE TO THE DIR IS NOT BOX
         if (!board.getBoxPositions().contains(new Coordinate(playerX+pushDirection.dX, playerY+pushDirection.dY))) return false;
 
+//        System.out.println("Player is pushing into box");
+
         // BOX IS ON THE EDGE IN THE GIVEN DIR
         if (!CustAction.isOnBoard(board, playerX+pushDirection.dX, playerY+pushDirection.dY, pushDirection)) return false;
 
+//        System.out.println("Box is not being pushed out of the edge");
+
         // TILE TO THE DIR OF THE BOX IS NOT FREE (DOES NOT CHECK IF IT IS BOX)
-        if (!CTile.isFree(board.tile(playerX+pushDirection.dX+pushDirection.dX, playerY+pushDirection.dY+pushDirection.dY))) return false;
+        if (!CustomTile.isFree(board.tile(playerX+pushDirection.dX+pushDirection.dX, playerY+pushDirection.dY+pushDirection.dY))) return false;
+
+//        System.out.println("new box position is free (maybe a box)");
 
         // TILE TO THE DIR OF THE BOX IS A BOX
         if (board.getBoxPositions().contains(new Coordinate(playerX+pushDirection.dX+pushDirection.dX, playerY+pushDirection.dY+pushDirection.dY))) return false;
 
-        // YEP, WE CAN PUSH
-        return true;
-    }
-
-    /**
-     * Is it possible to push the box from [playerX, playerY] in 'pushDirection' ?
-     *
-     * This deem the box pushable even if there is a player in that direction.
-     *
-     * @param board
-     * @param playerX
-     * @param playerY
-     * @param pushDirection
-     * @return
-     */
-    public static boolean isPushPossibleIgnorePlayer(BoardCustom board, int playerX, int playerY, EDirection pushDirection) {
-        // PLAYER ON THE EDGE
-        if (!CustAction.isOnBoard(board, playerX, playerY, pushDirection)) return false;
-
-        // TILE TO THE DIR IS NOT BOX
-        if (!CTile.isSomeBox(board.tile(playerX+pushDirection.dX, playerY+pushDirection.dY))) return false;
-
-        // BOX IS ON THE EDGE IN THE GIVEN DIR
-        if (!CustAction.isOnBoard(board, playerX+pushDirection.dX, playerY+pushDirection.dY, pushDirection)) return false;
-
-        // TILE TO THE DIR OF THE BOX IS NOT FREE
-        if (!CTile.isWalkable(board.tile(playerX+pushDirection.dX+pushDirection.dX, playerY+pushDirection.dY+pushDirection.dY))) return false;
+//        System.out.println("new box position is free (not a box)");
 
         // YEP, WE CAN PUSH
         return true;
     }
 
-    /**
-     * PERFORM THE PUSH, no validation, call {@link #isPossible(BoardCompact, EDirection)} first!
-     * @param board
-     * @param dir
-     */
+
+
     @Override
     public void perform(BoardCustom board) {
         // MOVE THE BOX
@@ -135,11 +117,7 @@ public class CustPush extends CustAction {
         board.movePlayer(board.playerX, board.playerY, board.playerX + dir.dX, board.playerY + dir.dY);
     }
 
-    /**
-     * REVERSE THE ACTION PREVIOUSLY DONE BY {@link #perform(BoardCompact, EDirection)}, no validation.
-     * @param board
-     * @param dir
-     */
+
     @Override
     public void reverse(BoardCustom board) {
         // MARK PLAYER POSITION

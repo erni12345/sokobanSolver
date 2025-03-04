@@ -50,10 +50,8 @@
 		 * @param tileFlag
 		 * @return
 		 */
-
-		// UPDATE TO SEE IF BOX
 		public static boolean isFree(int tileFlag) {
-			return isThis(entityNone, tileFlag);
+			return isThis(spaceFree, tileFlag);
 		}
 
 		/**

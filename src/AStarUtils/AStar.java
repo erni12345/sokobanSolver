@@ -22,15 +22,19 @@ public class AStar<S, A> {
                 return reconstructSolution(current, cameFrom);
             }
 
-            if (prob.prune(current.state)) {
-                continue;
-            }
+//            if (prob.prune(current.state)) {
+//                System.out.println("Pruning " + current.state);
+//                continue;
+//            }
+
+//            System.out.println("ACTION TAKEN " + current.action);
 
             for (A action : prob.actions(current.state)) {
+//                System.out.println("ACtion : " + action);
                 S nextState = prob.result(current.state, action);
                 double newCost = current.g + prob.cost(current.state, action);
 
-                // If we already found this state with a lower cost, skip it
+//                 If we already found this state with a lower cost, skip it
                 if (gScore.containsKey(nextState) && newCost >= gScore.get(nextState)) {
                     continue;
                 }
@@ -41,6 +45,8 @@ public class AStar<S, A> {
                 cameFrom.put(nextState, nextNode);
                 frontier.add(nextNode);
             }
+
+
         }
 
         return null;  // No solution found

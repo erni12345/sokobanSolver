@@ -8,6 +8,7 @@ import game.actions.oop.EActionType;
 import game.board.compact.BoardCompact;
 import game.board.compact.CTile;
 import game.board.custom.BoardCustom;
+import game.board.custom.CustomTile;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -67,12 +68,15 @@ public class CustMove extends CustAction {
     public boolean isPossible(BoardCustom board) {
         // PLAYER ON THE EDGE
         if (!onBoard(board, board.playerX, board.playerY, dir)) return false;
-
-        // TILE TO THE DIR IS NOT BOX
+//        System.out.println("not on edge");
+        // TILE TO THE DIR IS BOX
         if (board.getBoxPositions().contains(new Coordinate(board.playerX+dir.dX, board.playerY+dir.dY))) return false;
+//        System.out.println("not dir is box");
 
         // TILE TO THE DIR IS FREE
-        if (CTile.isFree(board.tile(board.playerX+dir.dX, board.playerY+dir.dY))) return true;
+        if (CustomTile.isFree(board.tile(board.playerX+dir.dX, board.playerY+dir.dY))) return true;
+//        System.out.println(board.tile(board.playerX+dir.dX, board.playerY+dir.dY));
+//        System.out.println("dir is not free");
 
         // TILE WE WISH TO MOVE TO IS NOT FREE
         return false;

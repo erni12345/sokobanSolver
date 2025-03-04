@@ -27,4 +27,10 @@ public abstract class CustAction {
         if (targetY < 0 || targetY >= board.height()) return false;
         return true;
     }
+
+
+    @Override
+    public String toString() {
+        return getType().toString() + " " + getDirection().toString();
+    }
 }

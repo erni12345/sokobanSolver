@@ -6,6 +6,7 @@ import game.actions.oop.EActionType;
 import game.board.compact.BoardCompact;
 import game.board.compact.CTile;
 import game.board.custom.BoardCustom;
+import game.board.custom.CustomTile;
 
 public class CustWalk extends CustAction {
 
@@ -54,7 +55,7 @@ public class CustWalk extends CustAction {
 
     @Override
     public boolean isPossible(BoardCustom board) {
-        return CTile.isWalkable(board.tile(x, y));
+        return CustomTile.isFree(board.tile(x, y));
     }
 
     @Override

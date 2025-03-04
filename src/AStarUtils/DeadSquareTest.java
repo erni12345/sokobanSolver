@@ -3,6 +3,7 @@ import java.io.File;
 import AStarUtils.DeadSquareDetector;
 import game.board.compact.*;
 import game.board.custom.BoardCustom;
+import game.board.custom.CustomTile;
 import game.board.oop.*;
 
 public class DeadSquareTest {
@@ -47,7 +48,7 @@ public class DeadSquareTest {
             System.out.println("dead squares: \n");
             for (int y = 0 ; y < bc.height() ; ++y) {
                 for (int x = 0 ; x < bc.width() ; ++x)
-                    System.out.print(CTile.isWall(bc.tile(x, y)) ? '#' : (dead[x][y] ? 'X' : '_'));
+                    System.out.print(CustomTile.isWall(bc.tile(x, y)) ? '#' : (dead[x][y] ? 'X' : '_'));
                 System.out.println();
             }
             System.out.println();
