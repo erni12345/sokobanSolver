@@ -99,7 +99,7 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 
     @Override
     public boolean prune(BoardCustom state) {
-        return DeadSquareDetector.isOnDeadSquare(state, deadSquares) ||
-                DeadSquareDetector.isBoxClusterDeadlock(state);
+        return DeadSquareDetector.isOnDeadSquare(state, deadSquares);
+//                || DeadSquareDetector.isBoxClusterDeadlock(state);
     }
 }

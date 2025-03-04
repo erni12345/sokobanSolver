@@ -22,10 +22,9 @@ public class AStar<S, A> {
                 return reconstructSolution(current, cameFrom);
             }
 
-//            if (prob.prune(current.state)) {
-//                System.out.println("Pruning " + current.state);
-//                continue;
-//            }
+            if (prob.prune(current.state)) {
+                continue;
+            }
 
 //            System.out.println("ACTION TAKEN " + current.action);
 
