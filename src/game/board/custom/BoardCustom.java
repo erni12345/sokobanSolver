@@ -30,6 +30,8 @@ public class BoardCustom implements Cloneable{
 
     private Set<Coordinate> boxPositions = new HashSet<>();
 
+    public double h;
+
     private BoardCustom(){
     }
 
@@ -40,6 +42,15 @@ public class BoardCustom implements Cloneable{
                 tiles[x][y] = CustomEntity.EMPTY;
             }
         }
+        h = 0.0; // TODO: check this
+    }
+
+    private BoardCustom(CustomEntity[][] tiles, int px, int py, int bc, int bipc) {
+        this.tiles = tiles;
+        playerX = px;
+        playerY = py;
+        boxCount = bc;
+        boxInPlaceCount = bipc;
     }
 
     public Set<Coordinate> getBoxPositions() {
@@ -48,16 +59,10 @@ public class BoardCustom implements Cloneable{
 
     @Override
     public BoardCustom clone() {
-        BoardCustom result = new BoardCustom();
-        result.tiles = this.tiles;
-        result.playerX = playerX;
-        result.playerY = playerY;
-        result.boxCount = boxCount;
-        result.boxInPlaceCount = boxInPlaceCount;
-        Set<Coordinate> clonedSet = new HashSet<>();
-        for (Coordinate c : boxPositions) {
-            clonedSet.add(c.clone());
-        }
+        BoardCustom result = new BoardCustom(tiles, playerX, playerY, boxCount, boxInPlaceCount);
+        Set<Coordinate> clonedSet = new HashSet<>(boxPositions);
+        //            clonedSet.add(c.clone());
+//        clonedSet.addAll(boxPositions);
         result.boxPositions = clonedSet;
         return result;
     }
@@ -72,6 +77,7 @@ public class BoardCustom implements Cloneable{
         for (Coordinate c : boxPositions) {
             hash = 31 * hash + (c != null ? c.hashCode() : 0);
         }
+        this.hash = hash;
         return hash;
     }
 

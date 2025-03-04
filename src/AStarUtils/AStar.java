@@ -39,7 +39,8 @@ public class AStar<S, A> {
                 }
 
                 gScore.put(nextState, newCost);
-                double fScore = newCost + prob.estimate(nextState);
+                double newH = prob.updateEstimate(current.state, nextState, action);
+                double fScore = newCost + newH;
                 Node<S, A> nextNode = new Node<>(nextState, current, action, newCost, fScore);
                 cameFrom.put(nextState, nextNode);
                 frontier.add(nextNode);
