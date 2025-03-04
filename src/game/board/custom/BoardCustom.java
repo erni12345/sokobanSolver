@@ -77,6 +77,7 @@ public class BoardCustom implements Cloneable{
         for (Coordinate c : boxPositions) {
             hash = 31 * hash + (c != null ? c.hashCode() : 0);
         }
+        this.hash = hash;
         return hash;
     }
 
