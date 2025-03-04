@@ -1,5 +1,6 @@
 package AStarUtils;
 
+import game.actions.EDirection;
 import game.actions.compact.CAction;
 import game.actions.compact.CMove;
 import game.actions.compact.CPush;
@@ -83,17 +84,29 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 //        // Here we implemetn the heuristic of the board
 //        // simple one -> Manhattan distance of all boxes to nearest point summed
 //        //could be better
-        Set<Coordinate> boxes = initialBoard.getBoxes();
-
+        Set<Coordinate> boxes = board.getBoxes();
+//        System.out.println("Estimate called");
         double totalDistance = 0.0;
 
         for (Coordinate box : boxes) {
             totalDistance += distances[box.x][box.y]; // uses the distance to closest box that was precomputed
         }
 
+        board.h = totalDistance;
+
         return totalDistance;
     }
 
+    public double updateEstimate(BoardCustom prev, BoardCustom next, CustAction action) {
+        if (action instanceof CustPush) {
+            EDirection dir = action.getDirection();
+            next.h = prev.h - distances[next.playerX][next.playerY] + distances[next.playerX+dir.dX][next.playerY+dir.dY];
+        }
+        else {
+            next.h = prev.h; // TODO: is this the expected behaviour
+        }
+        return next.h;
+    }
 
 
 

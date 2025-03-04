@@ -30,6 +30,8 @@ public class BoardCustom implements Cloneable{
 
     private Set<Coordinate> boxPositions = new HashSet<>();
 
+    public double h;
+
     private BoardCustom(){
     }
 
@@ -40,6 +42,7 @@ public class BoardCustom implements Cloneable{
                 tiles[x][y] = CustomEntity.EMPTY;
             }
         }
+        h = 0.0; // TODO: check this
     }
 
     public Set<Coordinate> getBoxPositions() {
