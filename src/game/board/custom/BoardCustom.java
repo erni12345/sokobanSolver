@@ -45,22 +45,24 @@ public class BoardCustom implements Cloneable{
         h = 0.0; // TODO: check this
     }
 
+    private BoardCustom(CustomEntity[][] tiles, int px, int py, int bc, int bipc) {
+        this.tiles = tiles;
+        playerX = px;
+        playerY = py;
+        boxCount = bc;
+        boxInPlaceCount = bipc;
+    }
+
     public Set<Coordinate> getBoxPositions() {
         return boxPositions;
     }
 
     @Override
     public BoardCustom clone() {
-        BoardCustom result = new BoardCustom();
-        result.tiles = this.tiles;
-        result.playerX = playerX;
-        result.playerY = playerY;
-        result.boxCount = boxCount;
-        result.boxInPlaceCount = boxInPlaceCount;
-        Set<Coordinate> clonedSet = new HashSet<>();
-        for (Coordinate c : boxPositions) {
-            clonedSet.add(c.clone());
-        }
+        BoardCustom result = new BoardCustom(tiles, playerX, playerY, boxCount, boxInPlaceCount);
+        Set<Coordinate> clonedSet = new HashSet<>(boxPositions);
+        //            clonedSet.add(c.clone());
+//        clonedSet.addAll(boxPositions);
         result.boxPositions = clonedSet;
         return result;
     }
