@@ -22,7 +22,7 @@ public class AStar<S, A> {
                 return reconstructSolution(current, cameFrom);
             }
 
-            if (prob.prune(current.state)) {
+            if (prob.prune(current.state, current.action)) {
                 continue;
             }
 

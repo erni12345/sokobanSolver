@@ -1,14 +1,9 @@
 package AStarUtils;
 
-import game.actions.compact.CAction;
-import game.actions.compact.CMove;
-import game.actions.compact.CPush;
 import game.actions.custom.CustAction;
 import game.actions.custom.CustMove;
 import game.actions.custom.CustPush;
-import game.board.compact.CTile;
 import game.board.custom.BoardCustom;
-import game.board.oop.Board;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -83,7 +78,7 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 //        // Here we implemetn the heuristic of the board
 //        // simple one -> Manhattan distance of all boxes to nearest point summed
 //        //could be better
-        Set<Coordinate> boxes = initialBoard.getBoxes();
+        Set<Coordinate> boxes = board.getBoxes();
 
         double totalDistance = 0.0;
 
@@ -98,8 +93,11 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 
 
     @Override
-    public boolean prune(BoardCustom state) {
-        return DeadSquareDetector.isOnDeadSquare(state, deadSquares);
-//                || DeadSquareDetector.isBoxClusterDeadlock(state);
+    public boolean prune(BoardCustom state, CustAction action) {
+        if (action instanceof  CustPush){
+            return DeadSquareDetector.pushIntoDeadSquare(action, deadSquares, state) || DeadSquareDetector.isBoxClusterDeadlock(state);
+        }
+        // if he just moved then there is no way to reach deadlock (can jsut move back)
+        return false;
     }
 }

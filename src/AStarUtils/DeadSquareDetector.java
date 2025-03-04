@@ -292,6 +292,16 @@ public class DeadSquareDetector {
     }
 
 
+    public static boolean pushIntoDeadSquare(CustAction action, boolean[][] deadSquare, BoardCustom board){
+        // we know action is of push type
+        // move player coords in direction that is where the box is
+        // check if dead square
+        int playerX = board.playerX;
+        int playerY = board.playerY;
+        return deadSquare[playerX + action.getDirection().dX][playerY + action.getDirection().dY];
+    }
+
+
 
 
     public static boolean[][] invertBooleanArray(boolean[][] array) {
