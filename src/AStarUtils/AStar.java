@@ -2,7 +2,6 @@ package AStarUtils;
 
 import java.util.*;
 
-// A* search
 
 public class AStar<S, A> {
     public static <S, A> Solution<S, A> search(HeuristicProblem<S, A> prob) {
@@ -15,6 +14,7 @@ public class AStar<S, A> {
         frontier.add(startNode);
         gScore.put(start, 0.0);
 
+
         while (!frontier.isEmpty()) {
             Node<S, A> current = frontier.poll();
 
@@ -22,19 +22,33 @@ public class AStar<S, A> {
                 return reconstructSolution(current, cameFrom);
             }
 
+            if (prob.prune(current.state)) {
+                continue;
+            }
+
+//            System.out.println("ACTION TAKEN " + current.action);
+
             for (A action : prob.actions(current.state)) {
+//                System.out.println("ACtion : " + action);
                 S nextState = prob.result(current.state, action);
                 double newCost = current.g + prob.cost(current.state, action);
 
-                if (!gScore.containsKey(nextState) || newCost < gScore.get(nextState)) {
-                    gScore.put(nextState, newCost);
-                    double fScore = newCost + prob.estimate(nextState);
-                    Node<S, A> nextNode = new Node<>(nextState, current, action, newCost, fScore);
-                    cameFrom.put(nextState, nextNode);
-                    frontier.add(nextNode);
+//                 If we already found this state with a lower cost, skip it
+                if (gScore.containsKey(nextState) && newCost >= gScore.get(nextState)) {
+                    continue;
                 }
+
+                gScore.put(nextState, newCost);
+                double newH = prob.updateEstimate(current.state, nextState, action);
+                double fScore = newCost + newH;
+                Node<S, A> nextNode = new Node<>(nextState, current, action, newCost, fScore);
+                cameFrom.put(nextState, nextNode);
+                frontier.add(nextNode);
             }
+
+
         }
+
         return null;  // No solution found
     }
 
@@ -50,10 +64,4 @@ public class AStar<S, A> {
         Collections.reverse(actions);
         return new Solution<>(actions, goalState, pathCost);
     }
-
 }
-
-
-
-
-

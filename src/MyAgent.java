@@ -2,32 +2,38 @@ import static java.lang.System.out;
 import java.util.ArrayList;
 import java.util.List;
 
-import AStarUtils.AStar;
-import AStarUtils.HeuristicProblem;
-import AStarUtils.SokobanProblem;
-import AStarUtils.Solution;
+import AStarUtils.*;
 import agents.ArtificialAgent;
 import game.actions.EDirection;
 import game.actions.compact.*;
+import game.actions.custom.CustAction;
+import game.actions.slim.SAction;
 import game.board.compact.BoardCompact;
+import game.board.custom.BoardCustom;
 import game.board.oop.Board;
+import game.board.slim.BoardSlim;
 
 /**
  * The simplest Tree-DFS agent.
  * @author Jimmy
  */
 public class MyAgent extends ArtificialAgent {
-	protected BoardCompact board;
+	protected BoardCustom board;
 	protected int searchedNodes;
 	
 	@Override
 	protected List<EDirection> think(BoardCompact board) {
-		this.board = board;
+
+
+//		out.println(board.getBoardString());
+
+		this.board = BoardCustom.fromBoardCompact(board);
+//		out.println("_______");
+//		out.println(this.board.getBoardString());
 		searchedNodes = 0;
 		long searchStartMillis = System.currentTimeMillis();
 		
 		List<EDirection> result = new ArrayList<EDirection>();
-//		dfs(5, result); // the number marks how deep we will search (the longest plan we will consider)
 
 		boolean found = useAStar(result);
 		long searchTime = System.currentTimeMillis() - searchStartMillis;
@@ -47,8 +53,8 @@ public class MyAgent extends ArtificialAgent {
 		//Use A star to get a solution
 		//Convert Solution to EDirections
 
-		HeuristicProblem<BoardCompact, CAction> sokoban = new SokobanProblem(this.board);
-		Solution<BoardCompact, CAction> solution = AStar.search(sokoban);
+		HeuristicProblem<BoardCustom, CustAction> sokoban = new SokobanProblem(this.board);
+		Solution<BoardCustom, CustAction> solution = AStar.search(sokoban);
 
 		//if no solution found
 		if (solution == null) {
@@ -56,8 +62,8 @@ public class MyAgent extends ArtificialAgent {
 		}
 
 		// we now need to reconstruct the solution from actions to e directions
-		List<CAction> actions = solution.actions;
-		for(CAction action : actions) {
+		List<CustAction> actions = solution.actions;
+		for(CustAction action : actions) {
 			result.add(action.getDirection());
 		}
 

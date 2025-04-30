@@ -67,7 +67,7 @@ public class CMove extends CAction {
 		if (!onBoard(board, board.playerX, board.playerY, dir)) return false;
 		
 		// TILE TO THE DIR IS FREE
-		if (CTile.isFree(board.tile(board.playerX+dir.dX, board.playerY+dir.dY))) return true;
+		if (CTile.isWalkable(board.tile(board.playerX+dir.dX, board.playerY+dir.dY))) return true;
 				
 		// TILE WE WISH TO MOVE TO IS NOT FREE
 		return false;

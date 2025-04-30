@@ -1,9 +1,13 @@
 package game.board.slim;
 
+import AStarUtils.Coordinate;
 import game.board.compact.BoardCompact;
 import game.board.oop.EEntity;
 import game.board.oop.EPlace;
 import game.board.oop.ESpace;
+
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Even more compact board than {@link BoardCompact}. Ignores colors of boxes and places.
@@ -22,7 +26,10 @@ public class BoardSlim {
 	
 	public byte boxCount;
 	public byte boxInPlaceCount;
-	
+
+	private final Set<Coordinate> boxPositions = new HashSet<>();
+	private final Set<Coordinate> placePositions = new HashSet<>();
+
 	private BoardSlim() {
 	}
 	
@@ -34,21 +41,41 @@ public class BoardSlim {
 			}			
 		}
 	}
-	
+
+	public void initializeBoxesAndPlaces() {
+		boxPositions.clear();
+		boxCount = 0;
+		boxInPlaceCount = 0;
+		for (byte x = 0; x < width(); x++) {
+			for (byte y = 0; y < height(); y++) {
+				if (STile.isBox(tiles[x][y])) {
+					boxPositions.add(new Coordinate(x, y));
+					boxCount++;
+					if (STile.forBox(tiles[x][y])) {
+						boxInPlaceCount++;
+					}
+				}
+				else if (STile.forBox(tiles[x][y])) {
+					placePositions.add(new Coordinate(x, y));
+				}
+			}
+		}
+	}
+
+
 	@Override
 	public BoardSlim clone() {
 		BoardSlim result = new BoardSlim();
 		result.tiles = new byte[width()][height()];
 		for (int x = 0; x < width(); ++x) {
-			for (int y = 0; y < height(); ++y) {
-				result.tiles[x][y] = tiles[x][y];
-			}			
+			System.arraycopy(this.tiles[x], 0, result.tiles[x], 0, height());
 		}
-		result.playerX = playerX;
-		result.playerY = playerY;
-		result.boxCount = boxCount;
-		result.boxInPlaceCount = boxInPlaceCount;
-		result.hash = hash;
+		result.playerX = this.playerX;
+		result.playerY = this.playerY;
+		result.boxCount = this.boxCount;
+		result.boxInPlaceCount = this.boxInPlaceCount;
+		result.hash = this.hash;
+		result.boxPositions.addAll(this.boxPositions);
 		return result;
 	}
 	
@@ -70,8 +97,8 @@ public class BoardSlim {
 		if (obj == null) return false;
 		if (this == obj) return true;
 		if (obj.hashCode() != hashCode()) return false;
-		if (!(obj instanceof BoardSlim)) return false;		
-		BoardSlim other = (BoardSlim) obj;		
+		if (!(obj instanceof BoardSlim)) return false;
+		BoardSlim other = (BoardSlim) obj;
 		if (width() != other.width() || height() != other.height()) return false;
 		for (byte x = 0; x < width(); ++x) {
 			for (byte y = 0; y < height(); ++y) {
@@ -96,16 +123,16 @@ public class BoardSlim {
 	public byte tile(int x, int y) {
 		return tiles[x][y];
 	}
-	
+
 	public void movePlayer(byte sourceTileX, byte sourceTileY, byte targetTileX, byte targetTileY) {
 		byte entity = (byte) (tiles[sourceTileX][sourceTileY] & STile.SOME_ENTITY_FLAG);
-		
+
 		tiles[targetTileX][targetTileY] &= STile.NULLIFY_ENTITY_FLAG;
 		tiles[targetTileX][targetTileY] |= entity;
-		
+
 		tiles[sourceTileX][sourceTileY] &= STile.NULLIFY_ENTITY_FLAG;
-		tiles[sourceTileX][sourceTileY] |= STile.NONE_FLAG;	
-		
+		tiles[sourceTileX][sourceTileY] |= STile.NONE_FLAG;
+
 		playerX = targetTileX;
 		playerY = targetTileY;
 	}
@@ -133,6 +160,14 @@ public class BoardSlim {
 	 */
 	public boolean isVictory() {
 		return boxCount == boxInPlaceCount;
+	}
+
+	public Set<Coordinate> getBoxes() {
+		return boxPositions;
+	}
+
+	public Set<Coordinate> getPlaces() {
+		return placePositions;
 	}
 
 	public void nullHash(){
