@@ -1,5 +1,6 @@
 package AStarUtils;
 
+import game.actions.EDirection;
 import game.actions.custom.CustAction;
 import game.actions.custom.CustMove;
 import game.actions.custom.CustPush;
@@ -89,13 +90,23 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
         return totalDistance;
     }
 
-
+    @Override
+    public double updateEstimate(BoardCustom prev, BoardCustom next, CustAction action) {
+        if (action instanceof CustPush) {
+            EDirection dir = action.getDirection();
+            next.h = prev.h - distances[next.playerX][next.playerY] + distances[next.playerX+dir.dX][next.playerY+dir.dY];
+        }
+        else {
+            next.h = prev.h; // TODO: is this the expected behaviour
+        }
+        return next.h;
+    }
 
 
     @Override
     public boolean prune(BoardCustom state, CustAction action) {
         if (action instanceof  CustPush){
-            return DeadSquareDetector.pushIntoDeadSquare(action, deadSquares, state) || DeadSquareDetector.isBoxClusterDeadlock(state);
+            return DeadSquareDetector.pushIntoDeadSquare(action, deadSquares, state);
         }
         // if he just moved then there is no way to reach deadlock (can jsut move back)
         return false;

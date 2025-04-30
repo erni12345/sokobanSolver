@@ -1,4 +1,4 @@
-package game.board.compact;
+package game.board.custom;
 
 public enum CustomEntity {
     WALL,

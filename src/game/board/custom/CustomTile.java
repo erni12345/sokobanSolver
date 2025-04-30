@@ -1,7 +1,5 @@
 package game.board.custom;
 
-import game.board.compact.CustomEntity;
-
 public class CustomTile {
 
 
