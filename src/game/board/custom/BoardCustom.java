@@ -1,19 +1,15 @@
 package game.board.custom;
 
 import AStarUtils.Coordinate;
+import AStarUtils.HashableState;
+import AStarUtils.ZobristHashing;
 import game.board.compact.BoardCompact;
 import game.board.compact.CTile;
-import game.board.compact.CustomEntity;
-import game.board.minimal.StateMinimal;
-import game.board.oop.EEntity;
-import game.board.oop.EPlace;
-import game.board.oop.ESpace;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
-public class BoardCustom implements Cloneable{
+public class BoardCustom implements Cloneable, HashableState {
 
     private Integer hash = null;
 
@@ -69,17 +65,15 @@ public class BoardCustom implements Cloneable{
 
     @Override
     public int hashCode() {
-
-        if (hash != null) return hash;
         int hash = 7;
         hash = 31 * hash + playerX;
         hash = 31 * hash + playerY;
         for (Coordinate c : boxPositions) {
-            hash = 31 * hash + (c != null ? c.hashCode() : 0);
+            hash = 31 * hash + c.hashCode();
         }
-        this.hash = hash;
         return hash;
     }
+
 
     public Set<Coordinate> getBoxes() {
         return boxPositions;
@@ -96,6 +90,19 @@ public class BoardCustom implements Cloneable{
                 playerY == other.playerY &&
                 boxPositions.equals(other.boxPositions);
     }
+
+
+    public long computeZobristHash() {
+        long hash = ZobristHashing.getPlayerHash(playerX, playerY);
+
+        for (Coordinate box : boxPositions) {
+            hash ^= ZobristHashing.getBoxHash(box.x, box.y);
+        }
+
+        return hash;
+    }
+
+
 
     public boolean equalsState(BoardCustom other) {
         if (other == null) return false;

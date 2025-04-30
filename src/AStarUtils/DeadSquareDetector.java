@@ -1,22 +1,12 @@
 package AStarUtils;
 
 import game.actions.EDirection;
-import game.actions.compact.CPush;
 import game.actions.custom.CustAction;
-import game.board.compact.CTile;
+import game.board.compact.BoardCompact;
 import game.board.custom.BoardCustom;
 import game.board.custom.CustomTile;
-import game.board.oop.EEntity;
-import game.board.oop.EPlace;
-import game.board.oop.ESpace;
-import game.board.slim.BoardSlim;
-import game.board.slim.STile;
 
-import java.security.cert.CertificateEncodingException;
 import java.util.*;
-
-import static game.actions.compact.CPush.isPushPossible;
-import static game.board.oop.EPlace.SOME_BOX_PLACE_FLAG;
 
 public class DeadSquareDetector {
 
@@ -106,6 +96,11 @@ public class DeadSquareDetector {
 
     }
 
+    public static boolean[][] detect(BoardCompact board){
+        BoardCustom boardCustom = BoardCustom.fromBoardCompact(board);
+        return detect(boardCustom);
+    }
+
     public static boolean[][] detect(BoardCustom board) {
 
         goalCoordinates = getGoalCoordinates(board);
@@ -154,22 +149,6 @@ public class DeadSquareDetector {
 
 
 
-    public static boolean isOnDeadSquare(BoardCustom board, boolean[][] isDeadSquare){
-
-        //TODO:
-        // a way of making this much faster is on move of box have a flag if it gets moved int a dead square
-        // make our own board representation would be best here
-
-        for (Coordinate box : board.getBoxPositions()){
-            if (isDeadSquare[box.x][box.y]) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-
     public static int[][] computeManhattanDistanceMap(BoardCustom board) {
         int width = board.width();
         int height = board.height();
@@ -199,35 +178,7 @@ public class DeadSquareDetector {
         return distanceMap;
     }
 
-    private static boolean canMoveBox(BoardCustom board, int bX, int bY) {
-        for (EDirection dir : EDirection.values()) {
-            int playerX = bX - dir.dX;
-            int playerY = bY - dir.dY;
 
-            // If a push is possible from this position, the box can be moved
-            if (isPushPossible(board, playerX, playerY, dir)) {
-                return true;
-            }
-        }
-        return false; // No valid pushes found, so the box is stuck
-    }
-
-
-    public static boolean isBoxTrapped(BoardCustom board, int boxX, int boxY) {
-        // Check if a box is stuck against another box
-        for (EDirection dir : EDirection.values()) {
-            int nx = boxX + dir.dX;
-            int ny = boxY + dir.dY;
-
-            if (board.getBoxes().contains(new Coordinate(nx, ny))) {
-                // Check if this box is immovable
-                if (!canMoveBox(board, nx, ny)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     private static boolean isWithinBounds(BoardCustom board, int x, int y) {
         return x >= 0 && y >= 0 && x < board.width() && y < board.height();
@@ -236,59 +187,13 @@ public class DeadSquareDetector {
 
 
 
-    private static boolean isCorridorDeadlock(BoardCustom board, int boxX, int boxY, EDirection pushDir) {
-
-//        boolean isHorizontalCorridor = CustomTile.isWall(board.tile(boxX, boxY - 1)) && CustomTile.isWall(board.tile(boxX, boxY + 1));
-//        boolean isVerticalCorridor = CustomTile.isWall(board.tile(boxX - 1, boxY)) && CustomTile.isWall(board.tile(boxX + 1, boxY));
-//
-//        if (!isHorizontalCorridor && !isVerticalCorridor) return false;
-//
-//        if (canMoveBox(board, boxX, boxY)) return false;
-//
-//        int nx = boxX + pushDir.dX;
-//        int ny = boxY + pushDir.dY;
-//
-//        while (isWithinBounds(board, nx, ny) && !CustomTile.isWall(board.tile(nx, ny))) {
-//            if (CustomTile.forAnyBox(board.tile(nx, ny))) {
-//                return false;
-//            }
-//
-//            if (CustomTile.isSomeBox(board.tile(nx, ny)) && canMoveBox(board, nx, ny)) {
-//                return false;
-//            }
-//
-//            nx += pushDir.dX;
-//            ny += pushDir.dY;
-//        }
-//
-//        return true;
-        return false;
-    }
-
-
-
-
-    public static boolean isBoxClusterDeadlock(BoardCustom state) {
-        for (Coordinate box : state.getBoxes()) {
-            int stuckBoxes = 0;
-
-            if (isBoxTrapped(state, box.x, box.y)) {
-                return true;
-            }
-
-            for (EDirection dir : EDirection.values()) {
-                int nx = box.x + dir.dX;
-                int ny = box.y + dir.dY;
-                if (state.getBoxes().contains(new Coordinate(nx, ny))) {
-                    stuckBoxes++;
-                }
-
-                if (isCorridorDeadlock(state, box.x, box.y, dir)) return true;
-            }
-
-            if (stuckBoxes >= 3) return true; // Box is trapped by 3+ boxes
-        }
-        return false;
+    public static boolean pushIntoDeadSquare(CustAction action, boolean[][] deadSquare, BoardCustom board){
+        // we know action is of push type
+        // move player coords in direction that is where the box is
+        // check if dead square
+        int playerX = board.playerX;
+        int playerY = board.playerY;
+        return deadSquare[playerX + action.getDirection().dX][playerY + action.getDirection().dY];
     }
 
 

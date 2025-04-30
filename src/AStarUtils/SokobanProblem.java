@@ -1,15 +1,10 @@
 package AStarUtils;
 
 import game.actions.EDirection;
-import game.actions.compact.CAction;
-import game.actions.compact.CMove;
-import game.actions.compact.CPush;
 import game.actions.custom.CustAction;
 import game.actions.custom.CustMove;
 import game.actions.custom.CustPush;
-import game.board.compact.CTile;
 import game.board.custom.BoardCustom;
-import game.board.oop.Board;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,18 +80,17 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
 //        // simple one -> Manhattan distance of all boxes to nearest point summed
 //        //could be better
         Set<Coordinate> boxes = board.getBoxes();
-//        System.out.println("Estimate called");
+
         double totalDistance = 0.0;
 
         for (Coordinate box : boxes) {
             totalDistance += distances[box.x][box.y]; // uses the distance to closest box that was precomputed
         }
 
-        board.h = totalDistance;
-
         return totalDistance;
     }
 
+    @Override
     public double updateEstimate(BoardCustom prev, BoardCustom next, CustAction action) {
         if (action instanceof CustPush) {
             EDirection dir = action.getDirection();
@@ -109,10 +103,12 @@ public class SokobanProblem implements HeuristicProblem<BoardCustom, CustAction>
     }
 
 
-
     @Override
-    public boolean prune(BoardCustom state) {
-        return DeadSquareDetector.isOnDeadSquare(state, deadSquares);
-//                || DeadSquareDetector.isBoxClusterDeadlock(state);
+    public boolean prune(BoardCustom state, CustAction action) {
+        if (action instanceof  CustPush){
+            return DeadSquareDetector.pushIntoDeadSquare(action, deadSquares, state);
+        }
+        // if he just moved then there is no way to reach deadlock (can jsut move back)
+        return false;
     }
 }
